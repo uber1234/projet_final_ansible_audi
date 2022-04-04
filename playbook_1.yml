@@ -1,0 +1,50 @@
+
+--- 
+  - name: playbooks for users
+    hosts: all
+    become: yes
+    vars_files:
+      - utilisateurs.yml
+      - password.yml
+      - secret.txt
+      - /etc/type
+    
+    tasks:
+      - name: display d'une equipe
+        debug:
+          msg: " une equipe {{ projet }} et une equipe de {{ test }} "
+        
+      - name: "création du groupe dev"
+        group:
+          name: dev
+        #si le noeud  cible est dans le groupe centos
+        when: ('centos' in group_names)
+
+      - name: "créeation du group test"
+        group:
+          name: test
+        when: ('ubuntu' in group_names)
+
+      - name: "création des utilisateurs dev"
+        user:
+          name: "{{ item.username }}"
+          groups: dev
+          password: "{{ mdp_dev }} | password_hash('sha512'}}"
+        loop: "{{ users }}"
+        when: ('centos' in group_names) and ( item.job =="dev")
+        
+      - name: "création des utilisateurs test"
+        user:
+          name: "{{ item.username }}"
+          groups: test
+          password: "{{ mdp_test | password_hash('sha512') }} "
+        loop: "{{ users }}"
+        when: ('ubuntu' in group_names) and ( item.job== "test" )
+
+
+
+
+
+
+
+

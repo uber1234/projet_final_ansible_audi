@@ -1,0 +1,11 @@
+
+- users:
+    - username: Jean
+      job: dev
+    - username: Christian
+      job: test
+    - username: Philippe
+      job: dev
+    - username: Nicolas
+      job: test
+

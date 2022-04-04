@@ -1,0 +1,64 @@
+
+
+---
+  - name: installation deux servers
+    hosts: 
+      - projet
+      - test
+    gather_facts: True
+    tasks:
+      - name: mise à jour du système des paquets
+        yum:
+          name: '*'
+          state: latest
+        tags: never  
+      - name: "print ansible_hostaname variable"
+        debug:
+          msg: "{{ ansible_hostname }}"
+      - name: facts collect
+        setup:
+        register: variables_setup
+      - name: display
+        debug:
+          msg: "{{ ansible_all_ipv4_addresses }}" 
+         
+      - name: install apache apt
+        apt:
+          name: apache2
+          state: latest
+          update_cache: yes
+        notify: restart_apache2
+        when: ansible_distribution == 'Debian' or ansible_distribution == 'ubuntu'
+        #- name: restart service apache2
+        # service:
+        # name: apache2
+        # state: restarted
+        # enabled: yes
+      - name: installation httpd yum
+        yum:
+          name: httpd
+          state: latest
+        notify: restart_httpd
+        when: ansible_distribution == 'RedHat'
+     
+      - name: displaying distribution msg
+        debug: 
+          msg: "{{ ansible_distibution }} est la distribution  du noeud {{ ansible_hostname }} "
+        when: ansible_distribution=="Redhat" or ansible_distribution=="Centos"
+      - name: template 
+        template:
+          src: index.html.j2
+          dest: /var/www/html/
+    handlers:  
+      - name: restart_httpd
+        service:
+          name: httpd
+          state: restarted
+          #  when: httpd_results.changed
+
+      - name: restart_apche2
+        service:
+          name:        
+          state: restarted
+          
+
